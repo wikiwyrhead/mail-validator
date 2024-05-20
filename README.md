@@ -21,6 +21,14 @@ Email Validator is a simple WordPress plugin that allows you to validate email a
 3. Click the "Validate Emails" button.
 4. View the validation results.
 
+## Notes
+
+- **Valid**: The email address is correctly formatted and active.
+- **Invalid**: The email address is incorrectly formatted or does not exist.
+- **Unknown**: The email hosting service is blocking the validation process, so the status cannot be determined accurately. In such cases, the email is considered valid.
+
+Please note that emails listed as "unknown" are treated as valid due to limitations imposed by the email hosting service.
+
 ## License
 
 This plugin is licensed under the GNU General Public License v3.0 (GPL-3.0). See the [LICENSE](LICENSE) file for details.
