@@ -31,5 +31,5 @@ This plugin is licensed under the GNU General Public License v3.0 (GPL-3.0). See
 
 ## Release Notes
 
-### Version 1.0
+### Version 1.1
 - Initial release
