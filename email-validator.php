@@ -18,13 +18,52 @@ function email_validator_menu()
 function email_validator_page()
 {
 ?>
+    <style>
+        .email-validator-container {
+            display: flex;
+            gap: 50px;
+            /* Set the gap to 20px */
+            /*  justify-content: center; */
+            align-items: center;
+            padding: 20px;
+            /* Optional: to add some space around the container */
+        }
+
+        .email-validator-form {
+            flex: 1;
+            /* Adjust to use remaining space equally */
+            max-width: 30%;
+            /* Adjust the maximum width as needed */
+        }
+
+        .email-validator-instructions {
+            flex: 2;
+            /* Adjust to use remaining space equally */
+            max-width: 45%;
+            /* Adjust the maximum width as needed */
+        }
+    </style>
+
     <div class="wrap">
-        <h1>TRDS Email Validator</h1>
-        <form method="post">
-            <label for="email_addresses">Paste email addresses (one per line):</label><br>
-            <textarea name="email_addresses" rows="10" cols="50"></textarea><br>
-            <input type="submit" name="validate_emails" value="Validate Emails">
-        </form>
+        <h1 style="font-weight: bold;">TRDS Email Validator</h1>
+        <div class="email-validator-container">
+            <div class="email-validator-form">
+                <form method="post">
+                    <label for="email_addresses">Paste email addresses (one per line):</label><br>
+                    <textarea name="email_addresses" rows="10" cols="50"></textarea><br>
+                    <input type="submit" name="validate_emails" value="Validate Emails">
+                </form>
+            </div>
+            <div class="email-validator-instructions">
+                <h3 style="font-weight: bold;">Note on results:</h3>
+                <ul style="list-style-type: square;">
+                    <li><strong>Listed under Valid:</strong> The email address is correctly formatted and active.</li>
+                    <li><strong>Listed under Invalid:</strong> The email address is incorrectly formatted or does not exist.</li>
+                    <li><strong>Listed under Unknown:</strong> The email hosting service is blocking the validation process, so the status cannot be determined accurately. In such cases, the email is considered valid.</li>
+                </ul>
+                <p>Please note that emails listed as "unknown" are treated as valid due to limitations imposed by the email hosting service.</p>
+            </div>
+        </div>
         <?php
         if (isset($_POST['validate_emails'])) {
             $email_addresses = isset($_POST['email_addresses']) ? sanitize_textarea_field($_POST['email_addresses']) : '';
@@ -36,45 +75,17 @@ function email_validator_page()
 <?php
 }
 
-// Function to check if the domain is a known disposable email provider using debounce.io API
+// Function to check if the domain is a known disposable email provider
 function is_disposable_domain($domain)
 {
-    // API endpoint to check if a domain is disposable
-    $api_url = 'https://disposable.debounce.io/?email=' . urlencode('info@' . $domain);
+    // Path to the local disposable email list file
+    $file_path = plugin_dir_path(__FILE__) . 'list/disposable_email_blocklist.conf';
 
-    // Initialize cURL session
-    $ch = curl_init();
+    // Read the list of disposable email domains from the local file
+    $disposable_domains = file($file_path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 
-    // Set the URL and options
-    curl_setopt($ch, CURLOPT_URL, $api_url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-    // Execute cURL request
-    $response = curl_exec($ch);
-
-    // Check for cURL errors
-    if ($response === false) {
-        // Log an error message or handle the error as needed
-        error_log('cURL error: ' . curl_error($ch));
-        curl_close($ch);
-        return false;
-    }
-
-    // Close cURL session
-    curl_close($ch);
-
-    // Decode the JSON response
-    $data = json_decode($response, true);
-
-    // Check if JSON decoding was successful and the 'disposable' key exists
-    if ($data === null || !isset($data['disposable'])) {
-        // Log an error message or handle the error as needed
-        error_log('Failed to decode JSON response or "disposable" key not found.');
-        return false;
-    }
-
-    // Return true if the domain is disposable, otherwise false
-    return $data['disposable'] === 'true';
+    // Check if the domain is in the list
+    return in_array($domain, $disposable_domains);
 }
 
 // Validate email addresses
@@ -138,10 +149,10 @@ function display_validation_results($results)
             }
         }
 
-        echo '<h2>Validation Results</h2>';
+        echo '<h2 style="margin-left: 20px; font-weight: extrabold;">VALIDATION RESULTS</h2>';
         if (!empty($valid_emails)) {
-            echo '<h3>Valid Emails</h3>';
-            echo '<ul>';
+            echo '<h3 style="font-weight: extrabold; Color: Darkred; margin-left: 20px;">Valid Emails</h3>';
+            echo '<ul style="margin-left: 40px;">';
             foreach ($valid_emails as $email) {
                 echo '<li>' . $email . '</li>';
             }
@@ -149,8 +160,8 @@ function display_validation_results($results)
         }
 
         if (!empty($unknown_emails)) {
-            echo '<h3>Emails with Unknown Status</h3>';
-            echo '<ul>';
+            echo '<h3 style="font-weight: extrabold; Color: Darkred; margin-left: 20px;">Emails with Unknown Status</h3>';
+            echo '<ul style="margin-left: 40px;">';
             foreach ($unknown_emails as $email) {
                 echo '<li>' . $email . '</li>';
             }
@@ -158,8 +169,8 @@ function display_validation_results($results)
         }
 
         if (!empty($invalid_emails)) {
-            echo '<h3>Invalid Emails</h3>';
-            echo '<ul>';
+            echo '<h3 style="font-weight: extrabold; Color: Darkred; margin-left: 20px;">Invalid Emails</h3>';
+            echo '<ul style="margin-left: 40px;">';
             foreach ($invalid_emails as $email) {
                 echo '<li>' . $email . '</li>';
             }
